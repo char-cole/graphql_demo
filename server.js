@@ -2,7 +2,9 @@ const express = require("express");
 const expressGraphQL = require("express-graphql");
 const {
     GraphQLBoolean,
+    GraphQLID,
     GraphQLInt,
+    GraphQLList,
     GraphQLObjectType,
     GraphQLSchema,
     GraphQLString
@@ -12,12 +14,12 @@ const _db = {
     plans: [
         {
             id: 1,
-            name: "Plan F",
+            name: "Plan X",
             cost: 520
         },
         {
             id: 2,
-            name: "Plan G",
+            name: "Plan Y",
             cost: 420
         }
     ],
@@ -86,15 +88,16 @@ const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: "RootQueryType",
         fields: {
-            plan: {
-                type: PlanType,
+            getPlans: {
+                type: new GraphQLList(PlanType),
                 args: {
-                    id: {
-                        type: GraphQLInt
+                    ids: {
+                        type: new GraphQLList(GraphQLInt)
                     }
                 },
-                resolve: (source, { id }) => {
-                    return planHandler.getPlan(id);
+                resolve: (source, { ids }) => {
+                    const res = ids.map(id => planHandler.getPlan(id));
+                    return res
                 }
             }
         }
