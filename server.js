@@ -1,85 +1,79 @@
 const express = require("express");
 const expressGraphQL = require("express-graphql");
 const {
-    GraphQLBoolean,
-    GraphQLID,
-    GraphQLInt,
     GraphQLList,
     GraphQLObjectType,
     GraphQLSchema,
     GraphQLString
 } = require("graphql");
 
-const _db = {
-    plans: [
-        {
-            id: 1,
-            name: "Plan X",
-            cost: 520
-        },
-        {
-            id: 2,
-            name: "Plan Y",
-            cost: 420
-        }
-    ],
-    coverages: [
-        {
-            plan_id: 1,
-            a: true,
-            b: true,
-            c: true
-        },
-        {
-            plan_id: 2,
-            a: true,
-            b: false,
-            c: true
-        }
-    ]
-};
-
-const planHandler = {
-    getPlan(id) {
-        return _db.plans.find(plan => plan.id === id);
-    },
-    getCoverage(planId) {
-        return _db.coverages.find(coverage => coverage.plan_id === planId);
-    }
-};
-
-const CoverageType = new GraphQLObjectType({
-    name: "Coverage",
-    fields: {
-        plan_id: {
-            type: GraphQLInt
-        },
-        a: {
-            type: GraphQLBoolean
-        },
-        b: {
-            type: GraphQLBoolean
-        },
-        c: {
-            type: GraphQLBoolean
-        }
-    }
-});
+const _db = require('./db')
 
 const PlanType = new GraphQLObjectType({
     name: "Plan",
     fields: {
-        name: {
+        id: {
             type: GraphQLString
         },
-        cost: {
-            type: GraphQLInt
+        primaryDoctor: {
+            type: GraphQLString
         },
-        coverage: {
-            type: CoverageType,
-            resolve: (source, params) => {
-                return planHandler.getCoverage(source.id);
-            }
+        specialist: {
+            type: GraphQLString
+        },
+        emergencyRoom: {
+            type: GraphQLString
+        },
+        labXRay: {
+            type: GraphQLString
+        },
+        outpatientSurgery: {
+            type: GraphQLString
+        },
+        hospitalization: {
+            type: GraphQLString
+        },
+        outpatient: {
+            type: GraphQLString
+        },
+        periodicExamCoverage: {
+            type: GraphQLString
+        },
+        outOfPocketLimit: {
+            type: GraphQLString
+        },
+        prescriptionDrugCoverage: {
+            type: GraphQLString
+        },
+        ambulanceServices: {
+            type: GraphQLString
+        },
+        urgentCare: {
+            type: GraphQLString
+        },
+        skilledNursingFacility: {
+            type: GraphQLString
+        },
+        homeHealthCare: {
+            type: GraphQLString
+        },
+        hospice: {
+            type: GraphQLString
+        },
+        dentalServices: {
+            type: GraphQLString
+        },
+        hearingServices: {
+            type: GraphQLString
+        },
+        visionServices: {
+            type: GraphQLString
+        },
+        primaryOfficeVisit: {
+            type: GraphQLString
+        },
+        specialistOfficeVisit: {
+            type: GraphQLString
         }
     }
 });
@@ -92,12 +86,14 @@ const schema = new GraphQLSchema({
                 type: new GraphQLList(PlanType),
                 args: {
                     ids: {
-                        type: new GraphQLList(GraphQLInt)
+                        type: new GraphQLList(GraphQLString)
                     }
                 },
                 resolve: (source, { ids }) => {
-                    const res = ids.map(id => planHandler.getPlan(id));
-                    return res
+                    const res = ids.map(id =>
+                        _db.plans.find(plan => plan.id === id.toUpperCase())
+                    );
+                    return res;
                 }
             }
         }
